@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Formatting and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.16.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+
+  web:
+    name: Typecheck and web build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.16.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+  rust:
+    name: Rust fmt, clippy and tests
+    runs-on: macos-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: src-tauri
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - run: cargo test --locked
+
+  verify:
+    if: always()
+    needs: [quality, web, rust]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every CI lane to pass
+        env:
+          QUALITY: ${{ needs.quality.result }}
+          WEB: ${{ needs.web.result }}
+          RUST: ${{ needs.rust.result }}
+        run: |
+          failed=0
+          check() {
+            if [[ "$2" != success ]]; then
+              echo "::error::$1: $2"
+              failed=1
+            fi
+          }
+          check "Formatting and lint" "$QUALITY"
+          check "Typecheck and web build" "$WEB"
+          check "Rust fmt, clippy and tests" "$RUST"
+          exit "$failed"
