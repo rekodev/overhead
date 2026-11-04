@@ -2,3 +2,6 @@ dist
 pnpm-lock.yaml
 src-tauri/target
 src-tauri/gen
+.agents/skills/rust-best-practices
+.agents/skills/tauri-v2
+skills-lock.json
