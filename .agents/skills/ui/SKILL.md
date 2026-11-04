@@ -54,6 +54,10 @@ inside components.
   dispatcher and the button hints. A button's key hint and its handler must
   never disagree.
 - In text fields, letters type normally; only Enter and Esc act.
+- Text fields set `autoComplete`, `autoCorrect` and `autoCapitalize` to
+  `"off"` and `spellCheck={false}`: replies carry commands and paths, and
+  macOS autocorrect mangles them. On focus, put the caret at the end; WebKit
+  otherwise sometimes restores a select-all.
 - Esc: leave the text field first, then release focus (a Rust command).
 - Every button shows its key hint and also works with the mouse.
 

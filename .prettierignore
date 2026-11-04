@@ -5,3 +5,4 @@ src-tauri/gen
 .agents/skills/rust-best-practices
 .agents/skills/tauri-v2
 skills-lock.json
+src/bindings.ts

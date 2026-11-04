@@ -42,6 +42,25 @@ rules. Every `unsafe` block gets one operation and a `// SAFETY:` comment
   summon time.
 - Activation policy is Accessory: no Dock icon, no app-switcher entry. The
   tray icon is a template image so it fits light and dark menu bars.
+- The HUD window has `"focus": false` in `tauri.conf.json`. Without it the
+  panel is key at launch, keys go nowhere, and the first summon toggles off.
+- Taking keys (REK-196): `show_and_make_key()` makes wry's
+  `WryWebViewParent` the first responder, which swallows keys. Make its first
+  subview (the `WryWebView`) first responder.
+- Releasing keys: `makeFirstResponder(nil)`, then `orderOut` +
+  `orderFrontRegardless` (hide + show). That is what hands key status back to
+  the frontmost app's window. Activating that app instead doesn't work: it's
+  already active, so no window becomes key and every keystroke beeps.
+  `animationBehavior` is `None` so the hide + show doesn't blink.
+- WebKit refocuses the last field, with select-all, during that hide + show.
+  The UI treats the webview's `window` focus/blur as the source of truth and
+  drops any field focus while it doesn't hold the keys (`useFocusHandoff`).
+- To verify focus changes without a person: post keys with `CGEvent`, read
+  the field and the other app's text through the Accessibility API
+  (`AXManualAccessibility` on Overhead's pid exposes the webview), and check
+  `NSWorkspace.frontmostApplication` never becomes Overhead. Type into a
+  scratch TextEdit file, never a terminal. Avoid full-screen `screencapture`;
+  it triggers a screen-access prompt.
 
 ## Placement
 
