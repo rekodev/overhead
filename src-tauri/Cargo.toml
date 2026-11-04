@@ -6,6 +6,7 @@ authors = ["Artūras Tyškevičius"]
 license = "MIT"
 repository = "https://github.com/rekodev/overhead"
 edition = "2024"
+rust-version = "1.85"
 
 [lib]
 # The `_lib` suffix keeps the lib name distinct from the bin name (cargo#8519).
@@ -21,8 +22,52 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
+# BeautifulRust lints (github.com/morganlinton/BeautifulRust, lints/lints.toml), app profile:
+# the [lib]-only lints (missing_docs, missing_*_doc, print_*, exhaustive_enums) are left out.
+# CI and pre-commit run `cargo clippy --all-targets -- -D warnings`.
+[lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
 [lints.clippy]
 all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+
+unwrap_used = "warn"
+expect_used = "allow"
+missing_panics_doc = "allow"
+missing_errors_doc = "allow"
+panic_in_result_fn = "warn"
+missing_assert_message = "warn"
+
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+
+undocumented_unsafe_blocks = "warn"
+multiple_unsafe_ops_per_block = "warn"
+
+fn_params_excessive_bools = "warn"
+struct_excessive_bools = "warn"
+clone_on_ref_ptr = "warn"
+redundant_clone = "warn"
+rc_buffer = "warn"
+
+string_add = "warn"
+wildcard_imports = "warn"
+
+dbg_macro = "warn"
+todo = "warn"
+
+as_conversions = "warn"
+cast_possible_truncation = "warn"
+cast_sign_loss = "warn"
+
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+module_inception = "allow"
+enum_glob_use = "allow"
 
 [profile.release]
 codegen-units = 1
