@@ -28,6 +28,7 @@ src-tauri/src/
   requests/      pending registry, response encoding
   transcript/    watcher, turn summary
   panel/         nspanel, pill placement, dim overlay
+  tray.rs        menu bar icon and its menu
   hotkey/        summon key
   jump/          tmux + Ghostty
   speech/        push-to-talk
