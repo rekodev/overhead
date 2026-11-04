@@ -1,4 +1,5 @@
 mod panel;
+mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -7,6 +8,7 @@ pub fn run() {
         .plugin(tauri_nspanel::init())
         .setup(|app| {
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+            tray::init(app.handle())?;
             panel::init(app.handle())?;
             Ok(())
         })
